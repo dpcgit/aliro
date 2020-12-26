@@ -1,25 +1,46 @@
 import logo from './logo.svg';
 import './App.css';
+import React from 'react';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      input: '',
+      submit: ''
+    };
+    this.handleChange = this.handleChange.bind(this);
+ //   this.handleSubmit = this.handleSubmit.bind(this);
+  }
+  
+  async handleChange(event) {
+    this.setState({
+      input: event.target.value,
+    });
+  
+    const api_url="http://nominatim.openstreetmap.org/search?format=json&limit=5&q=" + event.target.value;
+    const response = await fetch(api_url);   
+    const data = await response.json();
+    console.log(data);
+    this.setState({
+      submit: data.map((item)=>item.display_name)
+    });
+  }
+  
+  render() {
+    return (
+      <div>
+        <form onSubmit={this.handleSubmit}>
+          <input
+            value={this.state.input}
+            onChange={this.handleChange} />          
+          <button type='submit'>Submit!</button>
+        </form>
+        <p>{this.state.submit}</p>
+      </div>
+    );
+  }
 }
+
 
 export default App;
