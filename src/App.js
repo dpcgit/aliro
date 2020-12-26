@@ -2,15 +2,17 @@ import logo from './logo.svg';
 import './App.css';
 import React from 'react';
 
+
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       input: '',
-      submit: ''
+      results: [],
+      selected:''
     };
     this.handleChange = this.handleChange.bind(this);
- //   this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleClick = this.handleClick.bind(this);
   }
   
   async handleChange(event) {
@@ -22,21 +24,23 @@ class App extends React.Component {
     const response = await fetch(api_url);   
     const data = await response.json();
     console.log(data);
+    
     this.setState({
-      submit: data.map((item)=>item.display_name)
+      results: data
     });
+  };
+  
+  handleClick(e){
+    console.log(e.target.id)
   }
   
   render() {
     return (
       <div>
-        <form onSubmit={this.handleSubmit}>
           <input
             value={this.state.input}
             onChange={this.handleChange} />          
-          <button type='submit'>Submit!</button>
-        </form>
-        <p>{this.state.submit}</p>
+        <div>{this.state.results.map((el,i)=>(<a href="#" id={el.lat+"_"+el.lon} onClick={this.handleClick}>{el.display_name}<br/></a>))}</div>
       </div>
     );
   }
