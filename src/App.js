@@ -32,6 +32,9 @@ class App extends React.Component {
   
   handleClick(e){
     console.log(e.target.id)
+    this.setState({
+      selected:e.target.id
+    })
   }
   
   render() {
