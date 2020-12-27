@@ -16,7 +16,16 @@ class MapFigure extends React.Component{
   render(){
     return(
       <div>
-        <Map provider={this.mapTilerProvider} defaultCenter={this.props.coordinates} center={this.props.coordinates}  defaultZoom={12} width={600} height={400}></Map>
+        <Map provider={this.mapTilerProvider} defaultCenter={this.props.coordinates} center={this.props.coordinates}  defaultZoom={12} width={600} height={400}>
+        <Marker 
+        anchor={this.props.coordinates}
+        color='black'
+        payload={1} 
+        onClick={({ event, anchor, payload }) => {
+          console.log('Clicked marker nr: ', payload)
+        }}
+      />
+        </Map>
       </div>
     );
   }
