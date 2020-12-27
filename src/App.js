@@ -12,11 +12,11 @@ class MapFigure extends React.Component{
   mapTilerProvider(x, y, z, dpr) {
     return `https://c.tile.openstreetmap.org/${z}/${x}/${y}.png`;    //<--- tile provider url, should provide colorful map from openstreet
   }
-
+  
   render(){
     return(
       <div>
-        <Map provider={this.mapTilerProvider} defaultCenter={[50.879, 4.6997]} defaultZoom={12} width={600} height={400}></Map>
+        <Map provider={this.mapTilerProvider} defaultCenter={this.props.coordinates} center={this.props.coordinates}  defaultZoom={12} width={600} height={400}></Map>
       </div>
     );
   }
@@ -29,7 +29,7 @@ class App extends React.Component {
     this.state = {
       input: '',
       results: [],
-      selected:''
+      selected:[50.879, 4.6997]
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleClick = this.handleClick.bind(this);
@@ -50,11 +50,12 @@ class App extends React.Component {
     });
   };
   
-  handleClick(e){
-    console.log(e.target.id)
-    this.setState({
-      selected:e.target.id
+  async handleClick(e){
+    console.log(e.target.id)    
+    await this.setState({
+      selected:e.target.id.split("_").map((el)=>parseFloat(el))
     })
+    console.log(this.state.selected)
   }
   
   render() {
@@ -64,7 +65,7 @@ class App extends React.Component {
             value={this.state.input}
             onChange={this.handleChange} />          
         <div>{this.state.results.map((el,i)=>(<a href="#" id={el.lat+"_"+el.lon} onClick={this.handleClick}>{el.display_name}<br/></a>))}</div>
-      <MapFigure></MapFigure>
+      <MapFigure coordinates={this.state.selected}></MapFigure>
       </div>
     );
   }
