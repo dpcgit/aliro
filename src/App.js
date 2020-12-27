@@ -36,9 +36,12 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      input: '',
-      results: [],
-      selected:[50.879, 4.6997]
+      input_1: '',
+      results_1: [],
+      selected_1:[50.879, 4.6997],
+      input_2:'',
+      results_2:[],
+      selected_2:[]
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleClick = this.handleClick.bind(this);
