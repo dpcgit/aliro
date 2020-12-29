@@ -18,13 +18,21 @@ class MapFigure extends React.Component{
       <div>
         <Map provider={this.mapTilerProvider} defaultCenter={this.props.coordinates} center={this.props.coordinates}  defaultZoom={12} width={600} height={400}>
         <Marker 
-        anchor={this.props.coordinates}
-        color='black'
-        payload={1} 
-        onClick={({ event, anchor, payload }) => {
-          console.log('Clicked marker nr: ', payload)
-        }}
-      />
+          anchor={this.props.coordinates}
+          color='black'
+          payload={1} 
+          onClick={({ event, anchor, payload }) => {
+            console.log('Clicked marker nr: ', payload)
+          }}
+        />
+        <Marker 
+          anchor={this.props.coordinates_2}
+          color='black'
+          payload={1} 
+          onClick={({ event, anchor, payload }) => {
+            console.log('Clicked marker nr: ', payload)
+          }}
+        />
         </Map>
       </div>
     );
@@ -45,11 +53,13 @@ class App extends React.Component {
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleClick = this.handleClick.bind(this);
+    this.handleClick2 = this.handleClick2.bind(this);
+    this.handleChange2 = this.handleChange2.bind(this);
   }
   
   async handleChange(event) {
     this.setState({
-      input: event.target.value,
+      input_1: event.target.value,
     });
   
     const api_url="http://nominatim.openstreetmap.org/search?format=json&limit=5&q=" + event.target.value;
@@ -58,26 +68,57 @@ class App extends React.Component {
     console.log(data);
     
     this.setState({
-      results: data
+      results_1: data
+    });
+  };
+
+  async handleChange2(event) {
+    this.setState({
+      input_2: event.target.value,
+    });
+  
+    const api_url="http://nominatim.openstreetmap.org/search?format=json&limit=5&q=" + event.target.value;
+    const response = await fetch(api_url);   
+    const data = await response.json();
+    console.log(data);
+    
+    this.setState({
+      results_2: data
     });
   };
   
   async handleClick(e){
     console.log(e.target.id)    
     await this.setState({
-      selected:e.target.id.split("_").map((el)=>parseFloat(el))
+      selected_1:e.target.id.split("_").map((el)=>parseFloat(el))
     })
-    console.log(this.state.selected)
+    console.log(this.state.selected_1)
+  }
+
+  async handleClick2(e){
+    console.log(e.target.id)    
+    await this.setState({
+      selected_2:e.target.id.split("_").map((el)=>parseFloat(el))
+    })
+    console.log(this.state.selected_2)
   }
   
   render() {
     return (
-      <div>
+      <div>From
           <input
-            value={this.state.input}
+            value={this.state.input_1}
             onChange={this.handleChange} />          
-        <div>{this.state.results.map((el,i)=>(<a href="#" id={el.lat+"_"+el.lon} onClick={this.handleClick}>{el.display_name}<br/></a>))}</div>
-      <MapFigure coordinates={this.state.selected}></MapFigure>
+        <div>
+          {this.state.results_1.map((el,i)=>(<a href="#" id={el.lat+"_"+el.lon} onClick={this.handleClick}>{el.display_name}<br/></a>))}
+        </div>To
+        <input
+          value={this.state.input_2}
+            onChange={this.handleChange2}/>
+        <div>
+        {this.state.results_2.map((el,i)=>(<a href="#" id={el.lat+"_"+el.lon} onClick={this.handleClick2}>{el.display_name}<br/></a>))}
+        </div>
+      <MapFigure coordinates={this.state.selected_1} coordinates_2={this.state.selected_2}></MapFigure>
       </div>
     );
   }
