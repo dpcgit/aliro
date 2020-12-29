@@ -49,12 +49,14 @@ class App extends React.Component {
       selected_1:[50.879, 4.6997],
       input_2:'',
       results_2:[],
-      selected_2:[]
+      selected_2:[],
+      directions:''
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.handleClick2 = this.handleClick2.bind(this);
     this.handleChange2 = this.handleChange2.bind(this);
+    this.handleDirectionsClick = this.handleDirectionsClick.bind(this);
   }
   
   async handleChange(event) {
@@ -103,6 +105,16 @@ class App extends React.Component {
     console.log(this.state.selected_2)
   }
   
+  async handleDirectionsClick(e){
+    const directions_url = "https://api.openrouteservice.org/v2/directions/driving-car?api_key=5b3ce3597851110001cf62480319426370d943d7bbb79c1459a96c6f&start=8.681495,49.41461&end=8.687872,49.420318"
+    const response = await fetch(directions_url);
+    const data = await response.json();
+    console.log("No directions yet")
+    console.log(data)
+    this.setState({
+      directions: JSON.stringify(data,null,4)
+    });
+  }
   render() {
     return (
       <div>From
@@ -119,7 +131,9 @@ class App extends React.Component {
         {this.state.results_2.map((el,i)=>(<a href="#" id={el.lat+"_"+el.lon} onClick={this.handleClick2}>{el.display_name}<br/></a>))}
         </div>
       <MapFigure coordinates={this.state.selected_1} coordinates_2={this.state.selected_2}></MapFigure>
-      </div>
+      <button type='button' onClick={this.handleDirectionsClick}>Get directions</button>
+    <pre>{this.state.directions}</pre>
+      </div>        
     );
   }
 }
