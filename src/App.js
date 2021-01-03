@@ -1,110 +1,17 @@
-import logo from './logo.svg';
-import './App.css';
-import React from 'react';
-import { Map, Marker, Overlay } from 'pigeon-maps'
+/*
+// code to render leaflet marker icon
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
-class MapFigure extends React.Component{
-  constructor(props) {
-   super(props);
-   this.mapTilerProvider = this.mapTilerProvider.bind(this);
-  };
+let DefaultIcon = L.icon({
+    iconUrl: icon,
+    shadowUrl: iconShadow
+});
 
-  mapTilerProvider(x, y, z, dpr) {
-    return `https://c.tile.openstreetmap.org/${z}/${x}/${y}.png`;    //<--- tile provider url, should provide colorful map from openstreet
-  }
-  
-  render(){
-    return(
-      <div>
-        <Map provider={this.mapTilerProvider} defaultCenter={this.props.coordinates} center={this.props.coordinates}  defaultZoom={12} width={600} height={400}>
-        <Marker 
-          anchor={this.props.coordinates}
-          color='black'
-          payload={1} 
-          onClick={({ event, anchor, payload }) => {
-            console.log('Clicked marker nr: ', payload)
-          }}
-        />
-        <Marker 
-          anchor={this.props.coordinates_2}
-          color='black'
-          payload={1} 
-          onClick={({ event, anchor, payload }) => {
-            console.log('Clicked marker nr: ', payload)
-          }}
-        />
-        </Map>
-      </div>
-    );
-  }
-}
+L.Marker.prototype.options.icon = DefaultIcon;
+// end of icon rendering code fix
 
-
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      input_1: '',
-      results_1: [],
-      selected_1:[50.879, 4.6997],
-      input_2:'',
-      results_2:[],
-      selected_2:[],
-      directions:''
-    };
-    this.handleChange = this.handleChange.bind(this);
-    this.handleClick = this.handleClick.bind(this);
-    this.handleClick2 = this.handleClick2.bind(this);
-    this.handleChange2 = this.handleChange2.bind(this);
-    this.handleDirectionsClick = this.handleDirectionsClick.bind(this);
-  }
-  
-  async handleChange(event) {
-    this.setState({
-      input_1: event.target.value,
-    });
-  
-    const api_url="http://nominatim.openstreetmap.org/search?format=json&limit=5&q=" + event.target.value;
-    const response = await fetch(api_url);   
-    const data = await response.json();
-    console.log(data);
-    
-    this.setState({
-      results_1: data
-    });
-  };
-
-  async handleChange2(event) {
-    this.setState({
-      input_2: event.target.value,
-    });
-  
-    const api_url="http://nominatim.openstreetmap.org/search?format=json&limit=5&q=" + event.target.value;
-    const response = await fetch(api_url);   
-    const data = await response.json();
-    console.log(data);
-    
-    this.setState({
-      results_2: data
-    });
-  };
-  
-  async handleClick(e){
-    console.log(e.target.id)    
-    await this.setState({
-      selected_1:e.target.id.split("_").map((el)=>parseFloat(el))
-    })
-    console.log(this.state.selected_1)
-  }
-
-  async handleClick2(e){
-    console.log(e.target.id)    
-    await this.setState({
-      selected_2:e.target.id.split("_").map((el)=>parseFloat(el))
-    })
-    console.log(this.state.selected_2)
-  }
-  
+  /*
   async handleDirectionsClick(e){
     const directions_url = "https://api.openrouteservice.org/v2/directions/driving-car?api_key=5b3ce3597851110001cf62480319426370d943d7bbb79c1459a96c6f&start=8.681495,49.41461&end=8.687872,49.420318"
     const response = await fetch(directions_url);
@@ -115,28 +22,75 @@ class App extends React.Component {
       directions: JSON.stringify(data,null,4)
     });
   }
-  render() {
-    return (
-      <div>From
-          <input
-            value={this.state.input_1}
-            onChange={this.handleChange} />          
-        <div>
-          {this.state.results_1.map((el,i)=>(<a href="#" id={el.lat+"_"+el.lon} onClick={this.handleClick}>{el.display_name}<br/></a>))}
-        </div>To
-        <input
-          value={this.state.input_2}
-            onChange={this.handleChange2}/>
-        <div>
-        {this.state.results_2.map((el,i)=>(<a href="#" id={el.lat+"_"+el.lon} onClick={this.handleClick2}>{el.display_name}<br/></a>))}
-        </div>
-      <MapFigure coordinates={this.state.selected_1} coordinates_2={this.state.selected_2}></MapFigure>
-      <button type='button' onClick={this.handleDirectionsClick}>Get directions</button>
-    <pre>{this.state.directions}</pre>
-      </div>        
-    );
-  }
-}
+*/
 
+import React, {useRef, useState, useEffect} from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css'
+import './App.css'
+
+function App() {
+  const mapRef = useRef(null);
+
+  const [input,setInput] = useState('');
+  const [results,setResults] = useState([]);
+  const [selected,setSelected] = useState([49.8419, 24.0315])
+  
+  const defaultZoom = 8;
+  const styleMap = { "width": "75vw", "height": "75vh" };
+
+  async function handlePlaceClick(e){
+    console.log(e.target.id)    
+    await setSelected(e.target.id.split("_").map((el)=>parseFloat(el)))
+    console.log(selected)
+    console.log('setview')
+    
+  }
+
+  async function handleInputChange(e){
+    setInput(e.target.value);
+    
+    const api_url="http://nominatim.openstreetmap.org/search?format=json&limit=5&q=" + e.target.value;
+    const response = await fetch(api_url);   
+    const data = await response.json();
+    console.log(data);
+    
+    setResults(data);
+  }
+  
+  useEffect(() => {
+    // create map
+    mapRef.current = L.map('map', {
+      center: selected,
+      zoom: 16,
+      layers: [
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+          attribution:
+            '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        }),
+      ]
+    });
+  }, []);
+
+  useEffect(() => {
+    // add selected location logic
+    mapRef.current.setView(selected);
+  }, [selected]);
+
+  return(
+    <div>
+      From
+      <input
+            value={input}
+            onChange={handleInputChange} />          
+      <div>
+          {results.map((el,i)=>(<a href="#" id={el.lat+"_"+el.lon} onClick={handlePlaceClick}>{el.display_name}<br/></a>))}
+      </div>
+
+      <div id="map">        
+      </div>
+    </div>
+  );
+}
 
 export default App;
