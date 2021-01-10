@@ -1,33 +1,10 @@
-/*
-// code to render leaflet marker icon
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-
-let DefaultIcon = L.icon({
-    iconUrl: icon,
-    shadowUrl: iconShadow
-});
-
-L.Marker.prototype.options.icon = DefaultIcon;
-// end of icon rendering code fix
-
-  /*
-  async handleDirectionsClick(e){
-    const directions_url = "https://api.openrouteservice.org/v2/directions/driving-car?api_key=5b3ce3597851110001cf62480319426370d943d7bbb79c1459a96c6f&start=8.681495,49.41461&end=8.687872,49.420318"
-    const response = await fetch(directions_url);
-    const data = await response.json();
-    console.log("No directions yet")
-    console.log(data)
-    this.setState({
-      directions: JSON.stringify(data,null,4)
-    });
-  }
-*/
 
 import React, {useRef, useState, useEffect} from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css'
 import './App.css'
+import Cost from './components/Cost';
+import {getDeployed} from './contracts/Cost';
 
 // code to fix rendering leaflet marker icon
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -49,6 +26,8 @@ function App() {
   const [directions,setDirections] = useState();
   const [distance,setDistance] = useState();
   const [duration,setDuration] = useState();
+
+  const [cost_instance,setCostInstance] = useState();
 
   // state variables for place 1
   const [input,setInput] = useState('');
@@ -121,6 +100,17 @@ function App() {
     console.log("Duration: ", duration_got);
   };
 
+  //effect to get contract instance
+  useEffect(()=>{
+    const getGetContractInstance = async () => {
+      const cost = await getDeployed();
+      setCostInstance(cost)
+    }
+
+    getGetContractInstance();
+
+  }, []);
+
   // efect to create map
   useEffect(() => {
     // create map
@@ -160,6 +150,8 @@ function App() {
 
   return(
     <div>
+
+      <Cost contract={cost_instance}></Cost>
       From
       <input
         value={input}
