@@ -16,7 +16,7 @@ function Cost(props) {
         setCost(cost_val)
       }
       getInitCostValue();
-    }, []);
+    }, [props]);
    
     return ( 
         <div>Cost value: {cost.toString()}</div> 

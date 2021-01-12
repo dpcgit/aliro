@@ -27,7 +27,7 @@ function App() {
   const [distance,setDistance] = useState();
   const [duration,setDuration] = useState();
 
-  const [cost_instance,setCostInstance] = useState();
+  const [cost_instance,setCostInstance] = useState({});
 
   // state variables for place 1
   const [input,setInput] = useState('');
@@ -104,7 +104,8 @@ function App() {
   useEffect(()=>{
     const getGetContractInstance = async () => {
       const cost = await getDeployed();
-      setCostInstance(cost)
+      console.log('cost instance: ',cost);
+      setCostInstance(cost);
     }
 
     getGetContractInstance();
